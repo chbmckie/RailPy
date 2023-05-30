@@ -1,6 +1,6 @@
 # RailPy
 
-A python program designed to provide details on the next train departing any Network Rail or RTT Enabled Railway Station in the UK.
+RailPy is a python program designed to provide details on the next train departing any Network Rail or RTT Enabled Railway Station in the UK.
 
 # Installation
 
