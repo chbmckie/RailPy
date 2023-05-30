@@ -4,7 +4,17 @@ A python program designed to provide details on the next train departing any Net
 
 # Installation
 
-## Installing the DotMatrix Font.
+To install and use the program succesfully, follow the below steps:
+
+## **Connecting to the RealTimeTrains API**
+
+To successfully connect to the API, follow the following steps:
+
+1. Paste in your API Username and Passkey into the `~/assets/EXAMPLE_apiKeys.py` and save.
+    1. *(Ensure the API Password is the one found in the API Portal, and not the one used to login to your API Account.)*
+2. Rename the file to `apiKeys.py`.
+
+## **Installing the DotMatrix Font**
 
 ### MacOS
 
@@ -24,11 +34,3 @@ A python program designed to provide details on the next train departing any Net
     1.  `sudo cp dotMatrix.ttf /usr/share/fonts/truetype/`
 3. Refresh the font cache using the `fc-cache` command.
     1. `sudo fc-cache -f -v`
-
-## **Connecting to the RealTimeTrains API**
-
-To successfully connect to the API, follow the following steps:
-
-1. Paste in your API Username and Passkey into the `~/assets/EXAMPLE_apiKeys.py` and save.
-    1. *(Ensure the API Password is the one found in the API Portal, and not the one used to login to your API Account.)*
-2. Rename the file to `apiKeys.py`.
