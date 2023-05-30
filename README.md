@@ -2,7 +2,7 @@
 
 A python program designed to provide details on the next train departing any Network Rail or RTT Enabled Railway Station in the UK.
 
-## Usage
+## Connecting to the RealTimeTrains API
 
 To successfully connect to the API, follow the following steps:
 
