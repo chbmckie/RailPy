@@ -1,4 +1,4 @@
-![Untitled-1](https://github.com/chbmckie/RailPy/assets/132846485/bc413125-e1ad-42f4-912e-8f4961079e17)
+![RailPyBanner](https://github.com/chbmckie/RailPy/assets/132846485/22abe6e2-bb6f-44c3-97f8-ef8d154e2f8c)
 
 # RailPy
 
