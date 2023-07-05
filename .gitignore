@@ -1,4 +1,5 @@
 .DS_Store
 assets/apiKeys.py
+assets/apiKeys.json
 assets/__pycache__
 media
