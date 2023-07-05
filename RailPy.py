@@ -27,7 +27,6 @@ if not os.path.exists(apiKeyFilePath):
     api_credentials = {
         "apiUsername": apiUsername,
         "apiAuthKey": apiAuthKey,
-        "apiKey": apiKey
     }
 
     #Dumping the dictionary to the json file
@@ -39,7 +38,7 @@ else:
         apiCredentials = json.load(file)
 
     #Retrieving the API key from the credentials
-    apiKey = apiCredentials.get("apiKey")
+    apiKey = (apiCredentials.get("apiUsername"), apiCredentials.get("apiAuthKey"))
 
     if not apiKey:
         print("Error: API key not found in the JSON file.")
