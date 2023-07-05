@@ -1,6 +1,7 @@
 #Importing default python modules
 import csv
 import json
+import os
 import tkinter as tk
 from tkinter import font
 
@@ -10,8 +11,39 @@ from bidict import bidict
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
-#Importing the API Key(s) from an external file (~/assets/apiKeys.py)
-from assets.apiKeys import apiKey
+#Importing the API Key(s) from an external file (~/assets/apiKeys.json)
+apiKeyFilePath="assets/apiKeys.json"
+
+if not os.path.exists(apiKeyFilePath):
+
+    #Asking the user for their API keys.
+    print("No API credentials were found at the default path. Please enter your information.")
+    print("These details can be found by logging in at https://api.rtt.io")
+    apiUsername = input("Enter your API username (i.e. rttapi_username):  ")
+    apiAuthKey = input("Enter your API password (NOT your login password):  ")
+    apiKey = (apiUsername,apiAuthKey)
+
+    #Creating a dictionary with the API credentials.
+    api_credentials = {
+        "apiUsername": apiUsername,
+        "apiAuthKey": apiAuthKey,
+        "apiKey": apiKey
+    }
+
+    #Dumping the dictionary to the json file
+    with open(apiKeyFilePath, "w") as file:
+        json.dump(api_credentials, file)
+
+else:
+    with open(apiKeyFilePath, "r") as file:
+        apiCredentials = json.load(file)
+
+    #Retrieving the API key from the credentials
+    apiKey = apiCredentials.get("apiKey")
+
+    if not apiKey:
+        print("Error: API key not found in the JSON file.")
+        print("Try deleting the file and re-running this program.")
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
