@@ -21,7 +21,7 @@ if not os.path.exists(apiKeyFilePath):
     print("These details can be found by logging in at https://api.rtt.io")
     apiUsername = input("Enter your API username (i.e. rttapi_username):  ")
     apiAuthKey = input("Enter your API password (NOT your login password):  ")
-    apiKey = (apiUsername,apiAuthKey)
+    apiKey = apiUsername,apiAuthKey
 
     #Creating a dictionary with the API credentials.
     api_credentials = {
