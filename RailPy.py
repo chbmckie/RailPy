@@ -24,14 +24,14 @@ if not os.path.exists(apiKeyFilePath):
     apiKey = apiUsername,apiAuthKey
 
     #Creating a dictionary with the API credentials.
-    api_credentials = {
+    apiCredentials = {
         "apiUsername": apiUsername,
         "apiAuthKey": apiAuthKey,
     }
 
     #Dumping the dictionary to the json file
     with open(apiKeyFilePath, "w") as file:
-        json.dump(api_credentials, file)
+        json.dump(apiCredentials, file)
 
 else:
     with open(apiKeyFilePath, "r") as file:
