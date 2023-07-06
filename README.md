@@ -6,15 +6,16 @@ RailPy is a python program designed to provide details on the next train departi
 
 # Installation
 
-To install and use the program succesfully, follow the below steps:
+To install and use the program successfully, follow the below steps:
 
 ## **Connecting to the RealTimeTrains API**
 
 To successfully connect to the API, follow the following steps:
 
-1. Paste in your API Username and Passkey into the `~/RailPy/assets/EXAMPLE_apiKeys.py` and save.
+1. Run the code for the first time and the application should prompt you to input your API Details.
     1. *(Ensure the API Password is the one found in the API Portal, and not the one used to login to your API Account.)*
-2. Rename the file to `apiKeys.py`.
+2. These details will then be saved to the file to `~/assets/apiKeys.json`.
+    1. If these details are erroneous, this file will need to be deleted, and the application will again prompt you to enter these.
 
 ## **Installing the DotMatrix Font**
 
