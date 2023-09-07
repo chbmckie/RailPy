@@ -3,7 +3,7 @@ import csv
 import json
 import os
 import tkinter as tk
-from tkinter import font
+from tkinter import font, simpledialog
 
 #Importing custom Pip modules
 import requests
@@ -79,15 +79,17 @@ with open("assets/ukCrsCodes.csv") as file:
     crsStationDict = bidict(dict(csv.reader(file, skipinitialspace=True)))
 
 #--------------------------------------------------------------------------------------------------------------------------------
+stationCode = 'null'
+while stationCode not in crsStationDict:
 
-#Getting a station input from the user
-stationInput=input("Enter a Station Name or its CRS code:  ")
+    # Create a Tkinter input dialog to get the station input
+    stationInput = simpledialog.askstring("Station Input", "Enter a Station Name or its CRS code:")
     
-#Establishing the CRS code for entered station by interpretting the input
-try:
-    stationCode = crsStationDict.inverse[stationInput.upper()]
-except:
-    stationCode = stationInput.upper()
+    #Establishing the CRS code for entered station by interpretting the input
+    try:
+        stationCode = crsStationDict.inverse[stationInput.upper()]
+    except:
+        stationCode = stationInput.upper()
 
 #Establishing the name of the entered station by comparing the CRS Code to a dictionary
 stationName=crsStationDict[stationCode].title()
