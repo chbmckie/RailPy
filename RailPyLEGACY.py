@@ -9,6 +9,8 @@ from tkinter import font, simpledialog
 import requests
 from bidict import bidict
 
+serviceIterationNumber=0
+
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Importing the API Key(s) from an external file (~/assets/apiKeys.json)
@@ -114,6 +116,10 @@ for i in range(5):
     serviceDateList.append(rttStationData['services'][i]['runDate'])
     serviceTypeList.append(rttStationData['services'][i]['serviceType'])
     railOperatorList.append(rttStationData['services'][i]['atocName'])
+    if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
+        railOperatorList[-1] = 'Caledonian MacBrayne'
+    if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport':
+        railOperatorList[-1] = 'A1 Flyer'
     destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
     arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
     try:
@@ -122,12 +128,12 @@ for i in range(5):
         platformNoList.append(False)
 print(serviceUidList, serviceDateList, serviceTypeList, railOperatorList, destinationNameList, arrivalTimeList, platformNoList)
 
-serviceUid = rttStationData['services'][0]['serviceUid'] 
-serviceDate = rttStationData['services'][0]['runDate']
-serviceType = rttStationData['services'][0]['serviceType']
-railOperator = rttStationData['services'][0]['atocName']
-destinationName = rttStationData['services'][0]['locationDetail']['destination'][0]['description']
-arrivalTime = rttStationData['services'][0]['locationDetail']['destination'][0]['publicTime']
+#serviceUid = serviceUidList[serviceIterationNumber]
+#serviceDate = serviceDateList[serviceIterationNumber]
+#serviceType = serviceTypeList[serviceIterationNumber]
+#railOperator = railOperatorList[serviceIterationNumber]
+#destinationName = destinationNameList[serviceIterationNumber]
+#arrivalTime = arrivalTimeList[serviceIterationNumber]
 
 #Establishes departure platform (if applicable)
 try:
@@ -135,20 +141,14 @@ try:
 except:
     platformNo = False
 
-#Fixes an error with CalMac ferries appearing as ScotRail services
-if railOperator == 'ScotRail' and serviceType == 'ship':
-    railOperator = 'Caledonian MacBrayne'
-if railOperator == 'CrossCountry' and destinationName == 'Leeds Bradford Airport':
-    railOperator = 'A1 Flyer'
-
 #Find the adjective from of the service type
 serviceTypeConversion={'train':'rail',"bus":"rail replacement bus","ship":"ferry"}
-serviceTypeAdjective = serviceTypeConversion[serviceType]
+serviceTypeAdjective = serviceTypeConversion[serviceTypeList[serviceIterationNumber]]
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Using the basic info, the service-specific JSON data is retrieved from the API using 'requests.get' and parsed to be used as a dictionary
-rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service/{serviceUid}/{serviceDate.replace("-","/")}', auth=apiKey).text)
+rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service/{serviceUidList[serviceIterationNumber]}/{serviceDateList[serviceIterationNumber].replace("-","/")}', auth=apiKey).text)
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -176,24 +176,35 @@ else:
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
+if serviceIterationNumber == 0:
+    serviceOrder = "next"
+elif serviceIterationNumber == 1:
+    serviceOrder = "2nd"
+elif serviceIterationNumber == 2:
+    serviceOrder = "3rd"
+else:
+    serviceOrder = str(serviceIterationNumber+1)+'th'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
 #Defines the initial announcement based on whether a Platform Number is findable or not.
 if platformNo == False:
-    finalAnnouncement = (f"\nThe next {serviceTypeAdjective} service to depart {stationName} ({stationCode}) is the{departureTimeAnnouncement}, {railOperator} service to {destinationName}")
+    finalAnnouncement = (f"\nThe {serviceOrder} {serviceTypeAdjective} service to depart {stationName} ({stationCode}) is the{departureTimeAnnouncement}, {railOperatorList[serviceIterationNumber]} service to {destinationNameList[serviceIterationNumber]}")
     print(finalAnnouncement)
 else:
-    finalAnnouncement = (f"\nThe next {serviceTypeAdjective} service to depart {stationName} ({stationCode}) from Platform {platformNo} is the{departureTimeAnnouncement}, {railOperator} service to {destinationName}")
+    finalAnnouncement = (f"\nThe {serviceOrder} {serviceTypeAdjective} service to depart {stationName} ({stationCode}) from Platform {platformNo} is the{departureTimeAnnouncement}, {railOperatorList[serviceIterationNumber]} service to {destinationNameList[serviceIterationNumber]}")
     print(finalAnnouncement)
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Creates the initial part of the 'calling at...' announcment
-stopsAnnouncement = (f"This {serviceType} will be calling at ")
-print(f"This {serviceType} will be calling at ",end='')
+stopsAnnouncement = (f"This {serviceTypeList[serviceIterationNumber]} will be calling at ")
+print(f"This {serviceTypeList[serviceIterationNumber]} will be calling at ",end='')
 
 nextStop = rttServiceData['locations'][stopCounter-1]['description']
 if nextStop == rttServiceData['destination'][0]['description']:
     nextStop = rttServiceData['locations'][stopCounter+1]['description']
-while nextStop != destinationName:
+while nextStop != destinationNameList[serviceIterationNumber]:
     try:
         nextStop = rttServiceData['locations'][stopCounter]['description']
         try:
@@ -201,10 +212,10 @@ while nextStop != destinationName:
         except:
             nextStopTime = rttServiceData['locations'][stopCounter]['gbttBookedArrival']
         
-        if nextStop == destinationName and stopCounter > stationStopNumber+1:
+        if nextStop == destinationNameList[serviceIterationNumber] and stopCounter > stationStopNumber+1:
             print(f"and {nextStop} ({nextStopTime[0:2]}:{nextStopTime[2:4]})\n")
             stopsAnnouncement += (f"and {nextStop} ({nextStopTime[0:2]}:{nextStopTime[2:4]})\n")
-        elif nextStop == destinationName and stopCounter == stationStopNumber+1:
+        elif nextStop == destinationNameList[serviceIterationNumber] and stopCounter == stationStopNumber+1:
             print(f"{nextStop} ({nextStopTime[0:2]}:{nextStopTime[2:4]}) only\n")
             stopsAnnouncement += (f"{nextStop} ({nextStopTime[0:2]}:{nextStopTime[2:4]}) only\n")
         else:
@@ -217,13 +228,13 @@ while nextStop != destinationName:
         print(serviceChangeStop)
         associatedUid = rttServiceData['locations'][stopCounter-1]['associations'][0]['associatedUid']
         associatedDate = rttServiceData['locations'][stopCounter-1]['associations'][0]['associatedRunDate']
-        rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service/{associatedUid}/{serviceDate.replace("-","/")}', auth=apiKey).text)
+        rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service/{associatedUid}/{serviceDateList[serviceIterationNumber].replace("-","/")}', auth=apiKey).text)
         nextStop = rttServiceData['locations'][stopCounter]['description']
         oldStopCounter = stopCounter
         while nextStop != serviceChangeStop:
             nextStop = rttServiceData['locations'][stopCounter]['description']
             stopCounter+=1
-            if nextStop == destinationName:
+            if nextStop == destinationNameList[serviceIterationNumber]:
                 stopCounter = oldStopCounter
 
 #Runs the Tkinter Sub-Program to display the announcements in the DotMatrix style
