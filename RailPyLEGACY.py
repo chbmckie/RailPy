@@ -128,13 +128,6 @@ for i in range(5):
         platformNoList.append(False)
 print(serviceUidList, serviceDateList, serviceTypeList, railOperatorList, destinationNameList, arrivalTimeList, platformNoList)
 
-#serviceUid = serviceUidList[serviceIterationNumber]
-#serviceDate = serviceDateList[serviceIterationNumber]
-#serviceType = serviceTypeList[serviceIterationNumber]
-#railOperator = railOperatorList[serviceIterationNumber]
-#destinationName = destinationNameList[serviceIterationNumber]
-#arrivalTime = arrivalTimeList[serviceIterationNumber]
-
 #Establishes departure platform (if applicable)
 try:
     platformNo = rttStationData['services'][0]['locationDetail']['platform']
