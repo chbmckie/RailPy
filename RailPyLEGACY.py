@@ -138,6 +138,8 @@ except:
 #Fixes an error with CalMac ferries appearing as ScotRail services
 if railOperator == 'ScotRail' and serviceType == 'ship':
     railOperator = 'Caledonian MacBrayne'
+if railOperator == 'CrossCountry' and destinationName == 'Leeds Bradford Airport':
+    railOperator = 'A1 Flyer'
 
 #Find the adjective from of the service type
 serviceTypeConversion={'train':'rail',"bus":"rail replacement bus","ship":"ferry"}
