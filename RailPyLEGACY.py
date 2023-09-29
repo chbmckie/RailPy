@@ -107,7 +107,7 @@ if rttStationData['services'] == None:
 
 #Using the retrieved data, the first service's basic info is established. (UID, Run Date & Destination, etc.)
 
-serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]
+serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]
 
 for i in range(5):
     serviceUidList.append(rttStationData['services'][i]['serviceUid'])
@@ -116,7 +116,11 @@ for i in range(5):
     railOperatorList.append(rttStationData['services'][i]['atocName'])
     destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
     arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
-print(serviceUidList, serviceDateList, serviceTypeList, railOperatorList, destinationNameList, arrivalTimeList)
+    try:
+        platformNoList.append(rttStationData['services'][i]['locationDetail']['platform'])
+    except:
+        platformNoList.append(False)
+print(serviceUidList, serviceDateList, serviceTypeList, railOperatorList, destinationNameList, arrivalTimeList, platformNoList)
 
 serviceUid = rttStationData['services'][0]['serviceUid'] 
 serviceDate = rttStationData['services'][0]['runDate']
