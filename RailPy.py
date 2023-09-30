@@ -240,9 +240,6 @@ while nextStop != destinationNameList[serviceIterationNumber]:
             if nextStop == destinationNameList[serviceIterationNumber]:
                 stopCounter = oldStopCounter
 
-#Runs the Tkinter Sub-Program to display the announcements in the DotMatrix style
-dotMatrixWindow(finalAnnouncement,stopsAnnouncement)
-
 for i in range(len(serviceUidList)):
     if realTimeDepartureList[i] == scheduledDepartureList[i]:
         departureTimeAnnouncement = f"{(scheduledDepartureList[i])[:2]}:{(scheduledDepartureList[i])[2:]}"
@@ -250,6 +247,8 @@ for i in range(len(serviceUidList)):
         departureTimeAnnouncement = f"delayed {(scheduledDepartureList[i])[:2]}:{(scheduledDepartureList[i])[2:]} (expected {(realTimeDepartureList[i])[:2]}:{(realTimeDepartureList[i])[2:]})"
     print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
 
+#Runs the Tkinter Sub-Program to display the announcements in the DotMatrix style
+dotMatrixWindow(finalAnnouncement,stopsAnnouncement)
 
 '''
 NOTES
