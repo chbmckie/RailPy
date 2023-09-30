@@ -101,7 +101,7 @@ stationName=crsStationDict[stationCode].title()
 
 #Retrieving the JSON data from the API using 'requests.get' and parsing the data so it can be used as a dictionary.
 searchTime = datetime.now().strftime("%Y/%m/%d/%H%M")
-searchTime = datetime.now().strftime("%Y/%m/29/1848") #This is for the sake of testing only
+searchTime = datetime.now().strftime("%Y/%m/29/1928") #This is for the sake of testing only
 rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}/{searchTime}', auth=apiKey).text)
 #rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
 print(rttStationData)
@@ -177,6 +177,19 @@ if expectedDeparture != departureTime:
 else:
     departureTimeAnnouncement = f" {departureTime[0:2]}:{departureTime[2:4]}"
 
+try:
+    scheduledMinutes = int(departureTime[:2]) * 60 + int(departureTime[2:])
+    realTimeMinutes = int(expectedDeparture[:2]) * 60 + int(expectedDeparture[2:])
+
+    if departureTime == False:
+        departureTimeAnnouncement = f"{expectedDeparture[:2]}:{expectedDeparture[2:]}"
+
+    if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
+        departureTimeAnnouncement = f" {departureTime[:2]}:{departureTime[2:]}"
+    else:
+        departureTimeAnnouncement = f", delayed {departureTime[:2]}:{departureTime[2:]} (expected {expectedDeparture[:2]}:{expectedDeparture[2:]})"
+except:
+    departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
 #--------------------------------------------------------------------------------------------------------------------------------
 
 if serviceIterationNumber == 0:
@@ -241,27 +254,21 @@ while nextStop != destinationNameList[serviceIterationNumber]:
                 stopCounter = oldStopCounter
 
 for i in range(len(serviceUidList)):
-    scheduledDeparture=scheduledDepartureList[i]
-    realTimeDeparture=realTimeDepartureList[i]
-    if realTimeDepartureList[i] == scheduledDepartureList[i] or int(realTimeDepartureList[i]) == int(scheduledDepartureList[i])-1:
-        departureTimeAnnouncement = f"{(scheduledDepartureList[i])[:2]}:{(scheduledDepartureList[i])[2:]}"
-    else:
-        departureTimeAnnouncement = f"delayed {(scheduledDepartureList[i])[:2]}:{(scheduledDepartureList[i])[2:]} (expected {(realTimeDepartureList[i])[:2]}:{(realTimeDepartureList[i])[2:]})"
-    print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
-
-for i in range(len(serviceUidList)):
     scheduledDeparture = (scheduledDepartureList[i])
     realTimeDeparture = realTimeDepartureList[i]
     
     # Convert the string variables to minutes since midnight
-    scheduled_minutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
-    realTime_minutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
-    
-    if realTime_minutes == scheduled_minutes or realTime_minutes == scheduled_minutes - 1 or realTime_minutes == scheduled_minutes + 1439:
+    try:
+        scheduledMinutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
+        realTimeMinutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
+
+        if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
+            departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
+        else:
+            departureTimeAnnouncement = f"delayed {scheduledDeparture[:2]}:{scheduledDeparture[2:]} (expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]})"
+    except:
         departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
-    else:
-        departureTimeAnnouncement = f"delayed {scheduledDeparture[:2]}:{scheduledDeparture[2:]} (expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]})"
-    
+
     print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
 
 
