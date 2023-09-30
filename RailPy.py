@@ -4,6 +4,7 @@ import json
 import os
 import tkinter as tk
 from tkinter import font, simpledialog
+from datetime import datetime
 
 #Importing custom Pip modules
 import requests
@@ -99,7 +100,11 @@ stationName=crsStationDict[stationCode].title()
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Retrieving the JSON data from the API using 'requests.get' and parsing the data so it can be used as a dictionary.
-rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
+searchTime = datetime.now().strftime("%Y/%m/%d/%H%M")
+searchTime = datetime.now().strftime("%Y/%m/29/%H%M") #This is for the sake of testing only
+rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}/{searchTime}', auth=apiKey).text)
+#rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
+print(rttStationData)
 
 #Printing and Displaying an error message if no services are found.
 if rttStationData['services'] == None:
@@ -239,7 +244,11 @@ while nextStop != destinationNameList[serviceIterationNumber]:
 dotMatrixWindow(finalAnnouncement,stopsAnnouncement)
 
 for i in range(len(serviceUidList)):
-    print(f"The")
+    if realTimeDepartureList[i] == scheduledDepartureList[i]:
+        departureTimeAnnouncement = f"{(scheduledDepartureList[i])[:2]}:{(scheduledDepartureList[i])[2:]}"
+    else:
+        departureTimeAnnouncement = f"delayed {(scheduledDepartureList[i])[:2]}:{(scheduledDepartureList[i])[2:]} (expected {(realTimeDepartureList[i])[:2]}:{(realTimeDepartureList[i])[2:]})"
+    print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
 
 
 '''
