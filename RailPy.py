@@ -101,7 +101,6 @@ stationName=crsStationDict[stationCode].title()
 
 #Retrieving the JSON data from the API using 'requests.get' and parsing the data so it can be used as a dictionary.
 searchTime = datetime.now().strftime("%Y/%m/%d/%H%M")
-searchTime = datetime.now().strftime("%Y/%m/29/1928") #This is for the sake of testing only
 rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}/{searchTime}', auth=apiKey).text)
 #rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
 print(rttStationData)
@@ -116,26 +115,29 @@ if rttStationData['services'] == None:
 
 serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]; scheduledDepartureList=[]; realTimeDepartureList=[]
 
-for i in range(5):
-    serviceUidList.append(rttStationData['services'][i]['serviceUid'])
-    serviceDateList.append(rttStationData['services'][i]['runDate'])
-    serviceTypeList.append(rttStationData['services'][i]['serviceType'])
-    destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
-    railOperatorList.append(rttStationData['services'][i]['atocName'])
-    if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
-        railOperatorList[-1] = 'Caledonian MacBrayne'
-    if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport':
-        railOperatorList[-1] = 'FLYER A1'
-    arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
+for i in range(7):
     try:
-        platformNoList.append(rttStationData['services'][i]['locationDetail']['platform'])
+        serviceUidList.append(rttStationData['services'][i]['serviceUid'])
+        serviceDateList.append(rttStationData['services'][i]['runDate'])
+        serviceTypeList.append(rttStationData['services'][i]['serviceType'])
+        destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
+        railOperatorList.append(rttStationData['services'][i]['atocName'])
+        if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
+            railOperatorList[-1] = 'Caledonian MacBrayne'
+        if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport':
+            railOperatorList[-1] = 'FLYER A1'
+        arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
+        try:
+            platformNoList.append(rttStationData['services'][i]['locationDetail']['platform'])
+        except:
+            platformNoList.append(False)
+        scheduledDepartureList.append(rttStationData['services'][i]['locationDetail']['gbttBookedDeparture'])
+        try:
+            realTimeDepartureList.append(rttStationData['services'][i]['locationDetail']['realtimeDeparture'])
+        except:
+            realTimeDepartureList.append(False)
     except:
-        platformNoList.append(False)
-    scheduledDepartureList.append(rttStationData['services'][i]['locationDetail']['gbttBookedDeparture'])
-    try:
-        realTimeDepartureList.append(rttStationData['services'][i]['locationDetail']['realtimeDeparture'])
-    except:
-        realTimeDepartureList.append(False)
+        break
 print(serviceUidList, serviceDateList, serviceTypeList, destinationNameList, railOperatorList, arrivalTimeList, platformNoList, scheduledDepartureList, realTimeDepartureList)
 
 #Establishes departure platform (if applicable)
