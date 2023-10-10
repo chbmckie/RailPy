@@ -115,7 +115,19 @@ if rttStationData['services'] == None:
 
 serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]; scheduledDepartureList=[]; realTimeDepartureList=[]
 
-for i in range(7):
+tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
+print(tempDepartureTime); print((int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60))
+j=0
+while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60):
+    tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
+    tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
+    j+=1
+
+serviceCountStart = j; serviceCountStop = j+7
+print(serviceCountStart); print(serviceCountStop)
+
+for i in range(serviceCountStart,serviceCountStop):
+    print(i)
     try:
         serviceUidList.append(rttStationData['services'][i]['serviceUid'])
         serviceDateList.append(rttStationData['services'][i]['runDate'])
