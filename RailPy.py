@@ -3,7 +3,7 @@ import csv
 import json
 import os
 import tkinter as tk
-from tkinter import font, simpledialog
+from tkinter import font, simpledialog, ttk
 from datetime import datetime
 
 #Importing custom Pip modules
@@ -12,6 +12,73 @@ from bidict import bidict
 
 serviceIterationNumber=0
 
+#--------------------------------------------------------------------------------------------------------------------------------
+def getStationInput():
+    def updateListbox(event):
+        searchText = searchEntry.get().lower()
+        listBox.delete(0, tk.END)
+        for item in items:
+            if searchText in item.lower():
+                listBox.insert(tk.END, item)
+
+    def setStationInput():
+        selectedItem = listBox.get(listBox.curselection())
+        global stationInput 
+        stationInput = selectedItem
+        root.destroy()
+
+    # Create the main application window
+    root = tk.Tk()
+    root.title("RailPy Stations")
+
+    # Create a label and an entry widget for searching
+    searchLabel = tk.Label(root, text="Search:")
+    searchLabel.pack()
+
+    searchEntry = tk.Entry(root)
+    searchEntry.pack()
+
+    # Read the CSV file and extract values from the second column
+    csvFile = "assets/ukCrsCodes.csv"
+    items = []
+
+    try:
+        with open(csvFile, "r", newline="") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if len(row) >= 2:
+                    items.append(row[1].title())
+    except FileNotFoundError:
+        print(f"CSV file '{csvFile}' not found.")
+
+    # Create a listbox and a scrollbar
+    listBox = tk.Listbox(root, selectmode=tk.SINGLE, height=10)
+    scrollbar = ttk.Scrollbar(root, orient="vertical", command=listBox.yview)
+    listBox.config(yscrollcommand=scrollbar.set)
+
+    # Populate the listbox with items
+    for item in items:
+        listBox.insert(tk.END, item)
+
+    # Center the listbox in the window
+    listBox.pack(side="top", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+
+    # Bind the search entry to the updateListbox function when text changes
+    searchEntry.bind("<KeyRelease>", updateListbox)
+
+    # Create a variable to store the selected station
+    stationInput = ""
+
+    # Create a "Confirm Selection" button
+    confirmButton = tk.Button(root, text="Confirm Selection", command=setStationInput)
+    confirmButton.pack()
+
+    # Start the Tkinter main loop
+    root.mainloop()
+
+    # After the window is closed, you can access the selected station using stationInput.get()
+    print(stationInput)
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Importing the API Key(s) from an external file (~/assets/apiKeys.json)
@@ -86,7 +153,7 @@ stationCode = 'null'
 while stationCode not in crsStationDict:
 
     # Create a Tkinter input dialog to get the station input
-    stationInput = simpledialog.askstring("Station Input", "Enter a Station Name or its CRS code:")
+    getStationInput()
     
     #Establishing the CRS code for entered station by interpretting the input
     try:
