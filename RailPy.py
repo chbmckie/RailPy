@@ -174,8 +174,8 @@ print(rttStationData)
 
 #Printing and Displaying an error message if no services are found.
 if rttStationData['services'] == None:
-    print(f"\nThere are no services departing from {stationName} for a while... Check back later!\n")
-    dotMatrixWindow(f"\nThere are no services departing from {stationName} for a while..."," Check back later!")
+    print(f"\nThere are no services calling at {stationName} for a while... Check back later!\n")
+    dotMatrixWindow(f"\nThere are no services calling at {stationName} for a while..."," Check back later!")
     quit()
 
 #Using the retrieved data, the first service's basic info is established. (UID, Run Date & Destination, etc.)
@@ -185,12 +185,14 @@ serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; 
 tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
 print(tempDepartureTime); print((int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60))
 j=0
+print((int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60))
 while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60):
     tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
     tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
+    print(tempDepartureTime)
     j+=1
 
-serviceCountStart = j; serviceCountStop = j+7
+serviceCountStart = j-1; serviceCountStop = j+6
 print(serviceCountStart); print(serviceCountStop)
 
 for i in range(serviceCountStart,serviceCountStop):
@@ -270,7 +272,7 @@ try:
     else:
         departureTimeAnnouncement = f", delayed {departureTime[:2]}:{departureTime[2:]} (expected {expectedDeparture[:2]}:{expectedDeparture[2:]})"
 except:
-    departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
+    departureTimeAnnouncement = f"{expectedDeparture[:2]}:{expectedDeparture[2:]}"
 #--------------------------------------------------------------------------------------------------------------------------------
 
 if serviceIterationNumber == 0:
