@@ -14,7 +14,7 @@ To successfully connect to the API, follow the following steps:
 
 1. Run the code for the first time and the application should prompt you to input your API Details.
     1. *(Ensure the API Password is the one found in the API Portal, and not the one used to login to your API Account.)*
-2. These details will then be saved to the file to `~/assets/apiKeys.json`.
+2. These details will then be saved to the file `~/assets/apiKeys.json`.
     1. If these details are erroneous, this file will need to be deleted, and the application will again prompt you to enter these.
 
 ## **Installing the DotMatrix Font**
