@@ -19,12 +19,11 @@ def getStationInput():
         listBox.delete(0, tk.END)
         for item in items:
             combinedString = f"{item[1].lower()} ({item[0].lower()})"
-            print(combinedString)
             if searchText in combinedString:
                 listBox.insert(tk.END, f"{item[0]} ({item[1]})")
 
 
-    def setStationInput():
+    def setStationInput(event=None):
         selectedItem = listBox.get(listBox.curselection())
         global stationInput 
         stationInput = selectedItem[:-6]
@@ -78,6 +77,7 @@ def getStationInput():
     # Create a "Confirm Selection" button
     confirmButton = tk.Button(root, text="Confirm Selection", font=('SFPro-Heavy', 14), command=setStationInput)
     confirmButton.pack()
+    listBox.bind("<Double-1>", setStationInput)
 
     # Start the Tkinter main loop
     root.mainloop()
