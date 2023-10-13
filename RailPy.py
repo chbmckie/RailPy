@@ -31,7 +31,7 @@ def getStationInput():
     # Create the main application window
     root = tk.Tk()
     root.title("RailPy Stations")
-    root.geometry("250x400")
+    root.geometry("300x400","+%d+%d" % (750, 450))
 
     # Create a label and an entry widget for searching
     searchLabel = tk.Label(root, text="Search:", font=('SFPro-Bold', 16))
