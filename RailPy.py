@@ -81,9 +81,6 @@ def getStationInput():
 
     # Start the Tkinter main loop
     root.mainloop()
-
-    # After the window is closed, you can access the selected station using stationInput.get()
-    print(stationInput)
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Importing the API Key(s) from an external file (~/assets/apiKeys.json)
@@ -175,7 +172,6 @@ stationName=crsStationDict[stationCode].title()
 searchTime = datetime.now().strftime("%Y/%m/%d/%H%M")
 rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}/{searchTime}', auth=apiKey).text)
 #rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
-print(rttStationData)
 
 #Printing and Displaying an error message if no services are found.
 if rttStationData['services'] == None:
@@ -188,20 +184,15 @@ if rttStationData['services'] == None:
 serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]; scheduledDepartureList=[]; realTimeDepartureList=[]
 
 tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
-print(tempDepartureTime); print((int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60))
 j=0
-print((int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60))
 while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60):
     tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
     tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
-    print(tempDepartureTime)
     j+=1
 
 serviceCountStart = j-1; serviceCountStop = j+6
-print(serviceCountStart); print(serviceCountStop)
 
 for i in range(serviceCountStart,serviceCountStop):
-    print(i)
     try:
         serviceUidList.append(rttStationData['services'][i]['serviceUid'])
         serviceDateList.append(rttStationData['services'][i]['runDate'])
@@ -224,7 +215,7 @@ for i in range(serviceCountStart,serviceCountStop):
             realTimeDepartureList.append(False)
     except:
         break
-print(serviceUidList, serviceDateList, serviceTypeList, destinationNameList, railOperatorList, arrivalTimeList, platformNoList, scheduledDepartureList, realTimeDepartureList)
+#print(serviceUidList, serviceDateList, serviceTypeList, destinationNameList, railOperatorList, arrivalTimeList, platformNoList, scheduledDepartureList, realTimeDepartureList)
 
 #Establishes departure platform (if applicable)
 try:
@@ -245,9 +236,7 @@ rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service
 
 #Finds the entered location within the service's route and stores it as the var stationStopNumber
 while nextStop != stationName:
-    print(stopCounter)
     nextStop = rttServiceData['locations'][stopCounter]['description'].title()
-    print(f'{nextStop} != {stationName}')
     stopCounter+=1
 
 stationStopNumber = stopCounter-1
