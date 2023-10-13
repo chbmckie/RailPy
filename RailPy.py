@@ -18,7 +18,9 @@ def getStationInput():
         searchText = searchEntry.get().lower()
         listBox.delete(0, tk.END)
         for item in items:
-            if searchText in item[1].lower():
+            combinedString = f"{item[1].lower()} ({item[0].lower()})"
+            print(combinedString)
+            if searchText in combinedString:
                 listBox.insert(tk.END, f"{item[0]} ({item[1]})")
 
 
@@ -31,7 +33,8 @@ def getStationInput():
     # Create the main application window
     root = tk.Tk()
     root.title("RailPy Stations")
-    root.geometry("300x400","+%d+%d" % (750, 450))
+    root.geometry("+%d+%d" % (750, 450))
+    root.geometry("300x400")
 
     # Create a label and an entry widget for searching
     searchLabel = tk.Label(root, text="Search:", font=('SFPro-Bold', 16))
@@ -242,7 +245,9 @@ rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service
 
 #Finds the entered location within the service's route and stores it as the var stationStopNumber
 while nextStop != stationName:
-    nextStop = rttServiceData['locations'][stopCounter]['description']
+    print(stopCounter)
+    nextStop = rttServiceData['locations'][stopCounter]['description'].title()
+    print(f'{nextStop} != {stationName}')
     stopCounter+=1
 
 stationStopNumber = stopCounter-1
