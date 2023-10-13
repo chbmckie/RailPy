@@ -18,27 +18,29 @@ def getStationInput():
         searchText = searchEntry.get().lower()
         listBox.delete(0, tk.END)
         for item in items:
-            if searchText in item.lower():
-                listBox.insert(tk.END, item)
+            if searchText in item[1].lower():
+                listBox.insert(tk.END, f"{item[0]} ({item[1]})")
+
 
     def setStationInput():
         selectedItem = listBox.get(listBox.curselection())
         global stationInput 
-        stationInput = selectedItem
+        stationInput = selectedItem[:-6]
         root.destroy()
 
     # Create the main application window
     root = tk.Tk()
     root.title("RailPy Stations")
+    root.geometry("250x400")
 
     # Create a label and an entry widget for searching
-    searchLabel = tk.Label(root, text="Search:")
+    searchLabel = tk.Label(root, text="Search:", font=('SFPro-Bold', 16))
     searchLabel.pack()
 
     searchEntry = tk.Entry(root)
     searchEntry.pack()
 
-    # Read the CSV file and extract values from the second column
+    # Read the CSV file and extract values from the first and second column
     csvFile = "assets/ukCrsCodes.csv"
     items = []
 
@@ -47,18 +49,18 @@ def getStationInput():
             reader = csv.reader(file)
             for row in reader:
                 if len(row) >= 2:
-                    items.append(row[1].title())
+                    items.append((row[1].title(), row[0]))
     except FileNotFoundError:
         print(f"CSV file '{csvFile}' not found.")
 
     # Create a listbox and a scrollbar
-    listBox = tk.Listbox(root, selectmode=tk.SINGLE, height=10)
+    listBox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, font=('SFPro-Light', 16))
     scrollbar = ttk.Scrollbar(root, orient="vertical", command=listBox.yview)
     listBox.config(yscrollcommand=scrollbar.set)
 
     # Populate the listbox with items
     for item in items:
-        listBox.insert(tk.END, item)
+        listBox.insert(tk.END, f"{item[0]} ({item[1]})")
 
     # Center the listbox in the window
     listBox.pack(side="top", fill="both", expand=True)
@@ -71,7 +73,7 @@ def getStationInput():
     stationInput = ""
 
     # Create a "Confirm Selection" button
-    confirmButton = tk.Button(root, text="Confirm Selection", command=setStationInput)
+    confirmButton = tk.Button(root, text="Confirm Selection", font=('SFPro-Heavy', 14), command=setStationInput)
     confirmButton.pack()
 
     # Start the Tkinter main loop
@@ -128,7 +130,7 @@ def dotMatrixWindow(finalAnnouncement,stopsAnnouncement):
     #Setting up the Window Params
     window = tk.Tk()
     window.title("RailPy")
-    window.geometry("1500x500")
+    window.geometry("1500x600")
     window.configure(bg="black")
 
     #Creating the Main Label
@@ -174,8 +176,8 @@ print(rttStationData)
 
 #Printing and Displaying an error message if no services are found.
 if rttStationData['services'] == None:
-    print(f"\nThere are no services calling at {stationName} for a while... Check back later!\n")
-    dotMatrixWindow(f"\nThere are no services calling at {stationName} for a while..."," Check back later!")
+    print(f"\nThere are no services calling at {stationName} ({stationCode}) for a while... Check back later!\n")
+    dotMatrixWindow(f"\nThere are no services calling at {stationName} ({stationCode}) for a while..."," Check back later!")
     quit()
 
 #Using the retrieved data, the first service's basic info is established. (UID, Run Date & Destination, etc.)
