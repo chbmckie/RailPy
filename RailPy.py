@@ -3,7 +3,7 @@ import csv
 import json
 import os
 import tkinter as tk
-from tkinter import font, simpledialog, ttk
+from tkinter import font, ttk
 from datetime import datetime
 
 #Importing custom Pip modules
