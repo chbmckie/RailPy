@@ -186,9 +186,14 @@ serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; 
 tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
 j=0
 while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60):
-    tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
-    tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
-    j+=1
+    try:
+        tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
+        tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
+        j+=1
+    except:
+        print(f"\nThere are no services calling at {stationName} ({stationCode}) for a while... Check back later!\n")
+        dotMatrixWindow(f"\nThere are no services calling at {stationName} ({stationCode}) for a while..."," Check back later!")
+        quit()
 
 serviceCountStart = j-1; serviceCountStop = j+6
 
