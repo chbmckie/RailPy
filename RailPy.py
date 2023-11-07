@@ -4,7 +4,7 @@ import json
 import os
 import tkinter as tk
 from tkinter import font, ttk
-from datetime import datetime
+from datetime import datetime, timedelta
 
 #Importing custom Pip modules
 import requests
@@ -53,7 +53,7 @@ def getStationInput():
                 if len(row) >= 2:
                     items.append((row[1].title(), row[0]))
     except FileNotFoundError:
-        print(f"CSV file '{csvFile}' not found.")
+        print(f"The station CRS Code CSV file cannot be found at the default path ({csvFile}).\nPlease try reinstalling the application, or checking the file path.")
 
     # Create a listbox and a scrollbar
     listBox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, font=('SFPro-Light', 16))
@@ -169,18 +169,15 @@ stationName=crsStationDict[stationCode].title()
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Retrieving the JSON data from the API using 'requests.get' and parsing the data so it can be used as a dictionary.
+def getStationData(stationCode, searchTime):
+    return json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}/{searchTime}', auth=apiKey).text)
 searchTime = datetime.now().strftime("%Y/%m/%d/%H%M")
-rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}/{searchTime}', auth=apiKey).text)
+rttStationData = getStationData(stationCode, searchTime)
+
 #rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
 
-#Printing and Displaying an error message if no services are found.
-if rttStationData['services'] == None:
-    print(f"\nThere are no services calling at {stationName} ({stationCode}) for a while... Check back later!\n")
-    dotMatrixWindow(f"\nThere are no services calling at {stationName} ({stationCode}) for a while..."," Check back later!")
-    quit()
 
 #Using the retrieved data, the first service's basic info is established. (UID, Run Date & Destination, etc.)
-
 serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]; scheduledDepartureList=[]; realTimeDepartureList=[]
 
 tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
@@ -191,6 +188,13 @@ while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) 
         tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
         j+=1
     except:
+        #Printing and Displaying an error message if no services are found.
+        #To Do - implement a feature to keep searching an hour later until a service is found or the day ends.
+            #Keep searching for services i hours ahead until midnight is hit or a service is found.
+        for i in range(1,(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1) - datetime.now()).seconds // 3600):
+            itterativeSearchTime = (datetime.now()+timedelta(hours=i)).strftime("%Y/%m/%d/%H%M")
+            rttStationData = getStationData(stationCode, itterativeSearchTime)
+            print(i)
         print(f"\nThere are no services calling at {stationName} ({stationCode}) for a while... Check back later!\n")
         dotMatrixWindow(f"\nThere are no services calling at {stationName} ({stationCode}) for a while..."," Check back later!")
         quit()
@@ -206,8 +210,8 @@ for i in range(serviceCountStart,serviceCountStop):
         railOperatorList.append(rttStationData['services'][i]['atocName'])
         if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
             railOperatorList[-1] = 'Caledonian MacBrayne'
-        if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport':
-            railOperatorList[-1] = 'FLYER A1'
+        if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport' or railOperatorList[-1] == 'CrossCountry' and stationName == 'Leeds Bradford Airport':
+            railOperatorList[-1] = 'FLYER A1' 
         arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
         try:
             platformNoList.append(rttStationData['services'][i]['locationDetail']['platform'])
