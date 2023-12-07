@@ -22,7 +22,6 @@ def getStationInput():
             if searchText in combinedString:
                 listBox.insert(tk.END, f"{item[0]} ({item[1]})")
 
-
     def setStationInput(event=None):
         selectedItem = listBox.get(listBox.curselection())
         global stationInput 
@@ -238,9 +237,42 @@ serviceTypeAdjective = serviceTypeConversion[serviceTypeList[serviceIterationNum
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
+
+infoWindow = tk.Tk()
+infoWindow.title("Service Information")
+
+def box_clicked(i):
+    global serviceIterationNumber
+    serviceIterationNumber=i
+    infoWindow.destroy()
+
+
+for i in range(len(serviceUidList)):
+    scheduledDeparture = (scheduledDepartureList[i])
+    realTimeDeparture = realTimeDepartureList[i]
+    
+    # Convert the string variables to minutes since midnight
+    try:
+        scheduledMinutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
+        realTimeMinutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
+
+        if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
+            departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
+        else:
+            departureTimeAnnouncement = f"delayed {scheduledDeparture[:2]}:{scheduledDeparture[2:]} (expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]})"
+    except:
+        departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
+
+    print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
+    box = tk.Button(infoWindow, text=f"The {departureTimeAnnouncement} to {destinationNameList[i]}", command=lambda i=i: box_clicked(i))
+    box.pack()
+
+infoWindow.mainloop()
+
+
+#--------------------------------------------------------------------------------------------------------------------------------
 #Using the basic info, the service-specific JSON data is retrieved from the API using 'requests.get' and parsed to be used as a dictionary
 rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service/{serviceUidList[serviceIterationNumber]}/{serviceDateList[serviceIterationNumber].replace("-","/")}', auth=apiKey).text)
-
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Finds the entered location within the service's route and stores it as the var stationStopNumber
@@ -340,25 +372,6 @@ while nextStop != destinationNameList[serviceIterationNumber]:
             stopCounter+=1
             if nextStop == destinationNameList[serviceIterationNumber]:
                 stopCounter = oldStopCounter
-
-for i in range(len(serviceUidList)):
-    scheduledDeparture = (scheduledDepartureList[i])
-    realTimeDeparture = realTimeDepartureList[i]
-    
-    # Convert the string variables to minutes since midnight
-    try:
-        scheduledMinutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
-        realTimeMinutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
-
-        if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
-            departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
-        else:
-            departureTimeAnnouncement = f"delayed {scheduledDeparture[:2]}:{scheduledDeparture[2:]} (expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]})"
-    except:
-        departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
-
-    print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
-
 
 #Runs the Tkinter Sub-Program to display the announcements in the DotMatrix style
 dotMatrixWindow(finalAnnouncement,stopsAnnouncement)
