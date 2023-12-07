@@ -199,12 +199,13 @@ while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) 
         quit()
 
 serviceCountStart = j-1; serviceCountStop = j+6
+serviceTypeConversion={'train':'rail',"bus":"rail replacement bus","ship":"ferry"}
 
 for i in range(serviceCountStart,serviceCountStop):
     try:
         serviceUidList.append(rttStationData['services'][i]['serviceUid'])
         serviceDateList.append(rttStationData['services'][i]['runDate'])
-        serviceTypeList.append(rttStationData['services'][i]['serviceType'])
+        serviceTypeList.append(serviceTypeConversion[rttStationData['services'][i]['serviceType']])
         destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
         railOperatorList.append(rttStationData['services'][i]['atocName'])
         if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
@@ -224,16 +225,6 @@ for i in range(serviceCountStart,serviceCountStop):
     except:
         break
 #print(serviceUidList, serviceDateList, serviceTypeList, destinationNameList, railOperatorList, arrivalTimeList, platformNoList, scheduledDepartureList, realTimeDepartureList)
-
-#Establishes departure platform (if applicable)
-try:
-    platformNo = rttStationData['services'][0]['locationDetail']['platform']
-except:
-    platformNo = False
-
-#Find the adjective from of the service type
-serviceTypeConversion={'train':'rail',"bus":"rail replacement bus","ship":"ferry"}
-serviceTypeAdjective = serviceTypeConversion[serviceTypeList[serviceIterationNumber]]
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -273,6 +264,7 @@ infoWindow.mainloop()
 #--------------------------------------------------------------------------------------------------------------------------------
 #Using the basic info, the service-specific JSON data is retrieved from the API using 'requests.get' and parsed to be used as a dictionary
 rttServiceData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/service/{serviceUidList[serviceIterationNumber]}/{serviceDateList[serviceIterationNumber].replace("-","/")}', auth=apiKey).text)
+print(rttServiceData)
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Finds the entered location within the service's route and stores it as the var stationStopNumber
@@ -324,11 +316,11 @@ else:
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Defines the initial announcement based on whether a Platform Number is findable or not.
-if platformNo == False:
-    finalAnnouncement = (f"\nThe {serviceOrder} {serviceTypeAdjective} service to depart {stationName} ({stationCode}) is the{departureTimeAnnouncement}, {railOperatorList[serviceIterationNumber]} service to {destinationNameList[serviceIterationNumber]}")
+if platformNoList[serviceIterationNumber] == False:
+    finalAnnouncement = (f"\nThe {serviceOrder} {serviceTypeList[serviceIterationNumber]} service to depart {stationName} ({stationCode}) is the{departureTimeAnnouncement}, {railOperatorList[serviceIterationNumber]} service to {destinationNameList[serviceIterationNumber]}")
     print(finalAnnouncement)
 else:
-    finalAnnouncement = (f"\nThe {serviceOrder} {serviceTypeAdjective} service to depart {stationName} ({stationCode}) from Platform {platformNo} is the{departureTimeAnnouncement}, {railOperatorList[serviceIterationNumber]} service to {destinationNameList[serviceIterationNumber]}")
+    finalAnnouncement = (f"\nThe {serviceOrder} {serviceTypeList[serviceIterationNumber]} service to depart {stationName} ({stationCode}) from Platform {platformNoList[serviceIterationNumber]} is the{departureTimeAnnouncement}, {railOperatorList[serviceIterationNumber]} service to {destinationNameList[serviceIterationNumber]}")
     print(finalAnnouncement)
 
 #--------------------------------------------------------------------------------------------------------------------------------
