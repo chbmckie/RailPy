@@ -199,7 +199,7 @@ while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) 
         quit()
 
 serviceCountStart = j-1; serviceCountStop = j+6
-serviceTypeConversion={'train':'rail',"bus":"rail replacement bus","ship":"ferry"}
+serviceTypeConversion=bidict({'train':'rail',"bus":"rail replacement bus","ship":"ferry"})
 
 for i in range(serviceCountStart,serviceCountStop):
     try:
@@ -228,18 +228,18 @@ for i in range(serviceCountStart,serviceCountStop):
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
-
 infoWindow = tk.Tk()
 infoWindow.title("Service Information")
+infoWindow.configure(bg='black')
+infoWindow.geometry("+%d+%d" % (675, 400))
 
 def box_clicked(i):
     global serviceIterationNumber
-    serviceIterationNumber=i
+    serviceIterationNumber = i
     infoWindow.destroy()
 
-
 for i in range(len(serviceUidList)):
-    scheduledDeparture = (scheduledDepartureList[i])
+    scheduledDeparture = scheduledDepartureList[i]
     realTimeDeparture = realTimeDepartureList[i]
     
     # Convert the string variables to minutes since midnight
@@ -248,18 +248,33 @@ for i in range(len(serviceUidList)):
         realTimeMinutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
 
         if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
-            departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
+            delayInfo = "On Time"
         else:
-            departureTimeAnnouncement = f"delayed {scheduledDeparture[:2]}:{scheduledDeparture[2:]} (expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]})"
+            delayInfo = f"Expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]}"
     except:
-        departureTimeAnnouncement = f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]}"
+        delayInfo = "On Time"
 
-    print(f"The {departureTimeAnnouncement} to {destinationNameList[i]}")
-    box = tk.Button(infoWindow, text=f"The {departureTimeAnnouncement} to {destinationNameList[i]}", command=lambda i=i: box_clicked(i))
-    box.pack()
+    # Create a frame for each service
+    frame = tk.Frame(infoWindow, bg='black')
+    frame.pack(pady=5, padx=10, fill=tk.X)
+
+    # Create a label for the service time and destination
+    label1 = tk.Label(frame, text=f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]} to {destinationNameList[i]}", font='DotMatrix 22 bold', fg='orange', bg='black', anchor='w')
+    label1.pack(fill=tk.X)
+
+    # Create a frame for delay info and button
+    info_frame = tk.Frame(frame, bg='black')
+    info_frame.pack(fill=tk.X)
+
+    # Create a label for the delay information
+    label2 = tk.Label(info_frame, text=delayInfo, font='DotMatrix 16', fg='orange', bg='black', anchor='w')
+    label2.pack(side=tk.LEFT)
+
+    # Create a button for each service
+    box = tk.Button(info_frame, text="Select", command=lambda i=i: box_clicked(i), bg='black', fg='black')
+    box.pack(side=tk.RIGHT)
 
 infoWindow.mainloop()
-
 
 #--------------------------------------------------------------------------------------------------------------------------------
 #Using the basic info, the service-specific JSON data is retrieved from the API using 'requests.get' and parsed to be used as a dictionary
@@ -326,8 +341,8 @@ else:
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #Creates the initial part of the 'calling at...' announcment
-stopsAnnouncement = (f"This {serviceTypeList[serviceIterationNumber]} will be calling at ")
-print(f"This {serviceTypeList[serviceIterationNumber]} will be calling at ",end='')
+stopsAnnouncement = (f"This {serviceTypeConversion.inverse[serviceTypeList[serviceIterationNumber]]} will be calling at ")
+print(f"This {serviceTypeConversion.inverse[serviceTypeList[serviceIterationNumber]]} will be calling at ",end='')
 
 nextStop = rttServiceData['locations'][stopCounter-1]['description']
 if nextStop == rttServiceData['destination'][0]['description']:
