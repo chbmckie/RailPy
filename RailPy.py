@@ -232,59 +232,74 @@ searchStationServices(stationCode,datetime.now().strftime("%Y/%m/%d/%H%M"))
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
-infoWindow = tk.Tk()
-infoWindow.title("Service Information")
-infoWindow.configure(bg='black')
-infoWindow.geometry("+%d+%d" % (675, 400))
-
 def box_clicked(i):
     global serviceIterationNumber
     serviceIterationNumber = i
     infoWindow.destroy()
 
-def nextPageSearch():
-    searchStationServices(stationCode, datetime.now().strftime(f"%Y/%m/%d/{realTimeDepartureList[-1]}"))
+def nextPageSearch(firstTime=False):
+    global infoWindow  # Declare infoWindow as a global variable
+    infoWindow.destroy()  # Destroy the existing window
 
-for i in range(len(serviceUidList)):
-    scheduledDeparture = scheduledDepartureList[i]
-    realTimeDeparture = realTimeDepartureList[i]
-
-    # Convert the string variables to minutes since midnight
-    try:
-        scheduledMinutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
-        realTimeMinutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
-
-        if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
-            delayInfo = "On Time"
+    if firstTime is False:
+        if datetime.now().strftime("%H%M") > realTimeDepartureList[-1]:
+            searchStationServices(stationCode, (datetime.now() + timedelta(days=1)).strftime(f"%Y/%m/%d/{realTimeDepartureList[-1]}"))
         else:
-            delayInfo = f"Expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]}"
-    except:
-        delayInfo = "On Time"
+            searchStationServices(stationCode, datetime.now().strftime(f"%Y/%m/%d/{realTimeDepartureList[-1]}"))
 
-    # Create a frame for each service
-    frame = tk.Frame(infoWindow, bg='black')
-    frame.pack(pady=5, padx=10, fill=tk.X)
 
-    # Create a label for the service time and destination
-    label1 = tk.Label(frame, text=f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]} to {destinationNameList[i]}", font='DotMatrix 22 bold', fg='orange', bg='black', anchor='w')
-    label1.pack(fill=tk.X)
+    # Create a new Tkinter window
+    infoWindow = tk.Tk()
+    infoWindow.title("Service Information")
+    infoWindow.configure(bg='black')
+    infoWindow.geometry("+%d+%d" % (675, 400))
 
-    # Create a frame for delay info and button
-    info_frame = tk.Frame(frame, bg='black')
-    info_frame.pack(fill=tk.X)
+    for i in range(len(serviceUidList)):
+        scheduledDeparture = scheduledDepartureList[i]
+        realTimeDeparture = realTimeDepartureList[i]
 
-    # Create a label for the delay information
-    label2 = tk.Label(info_frame, text=delayInfo, font='DotMatrix 16', fg='orange', bg='black', anchor='w')
-    label2.pack(side=tk.LEFT)
+        try:
+            scheduledMinutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
+            realTimeMinutes = int(realTimeDeparture[:2]) * 60 + int(realTimeDeparture[2:])
 
-    # Create a button for each service
-    box = tk.Button(info_frame, text="Select", command=lambda i=i: box_clicked(i), bg='black', fg='black')
-    box.pack(side=tk.RIGHT)
+            if realTimeMinutes == scheduledMinutes or realTimeMinutes == scheduledMinutes - 1 or realTimeMinutes == scheduledMinutes + 1439:
+                delayInfo = "On Time"
+            else:
+                delayInfo = f"Expected {realTimeDeparture[:2]}:{realTimeDeparture[2:]}"
+        except:
+            delayInfo = "On Time"
 
-    if i == 0:
-        last_service_button = tk.Button(infoWindow, text="Search Last Service", command=nextPageSearch, bg='black', fg='black')
-        last_service_button.pack(side=tk.BOTTOM)
+        frame = tk.Frame(infoWindow, bg='black')
+        frame.pack(pady=5, padx=10, fill=tk.X)
 
+        label1 = tk.Label(frame, text=f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]} to {destinationNameList[i]}", font='DotMatrix 22 bold', fg='orange', bg='black', anchor='w')
+        label1.pack(fill=tk.X)
+
+        info_frame = tk.Frame(frame, bg='black')
+        info_frame.pack(fill=tk.X)
+
+        label2 = tk.Label(info_frame, text=delayInfo, font='DotMatrix 16', fg='orange', bg='black', anchor='w')
+        label2.pack(side=tk.LEFT)
+
+        box = tk.Button(info_frame, text="Select", command=lambda i=i: box_clicked(i), bg='black', fg='black')
+        box.pack(side=tk.RIGHT)
+
+        if i == 0:
+            last_service_button = tk.Button(infoWindow, text="Next services...", command=nextPageSearch, bg='black', fg='black')
+            last_service_button.pack(side=tk.BOTTOM)
+
+    infoWindow.mainloop()
+
+# Initialize the Tkinter window
+infoWindow = tk.Tk()
+infoWindow.title("Service Information")
+infoWindow.configure(bg='black')
+infoWindow.geometry("+%d+%d" % (675, 400))
+
+# Call nextPageSearch to populate the initial window
+nextPageSearch(True)
+
+# Start the Tkinter main loop
 infoWindow.mainloop()
 
 #--------------------------------------------------------------------------------------------------------------------------------
