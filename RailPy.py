@@ -175,56 +175,60 @@ rttStationData = getStationData(stationCode, searchTime)
 
 #rttStationData = json.loads(requests.get(f'http://api.rtt.io/api/v1/json/search/{stationCode}', auth=apiKey).text)
 
+def searchStationServices(stationCode,searchTime):
+    rttStationData = getStationData(stationCode, searchTime)
 
-#Using the retrieved data, the first service's basic info is established. (UID, Run Date & Destination, etc.)
-serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]; scheduledDepartureList=[]; realTimeDepartureList=[]
-
-tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
-j=0
-while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60):
-    try:
-        tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
-        tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
-        j+=1
-    except:
-        #Printing and Displaying an error message if no services are found.
-        #To Do - implement a feature to keep searching an hour later until a service is found or the day ends.
-            #Keep searching for services i hours ahead until midnight is hit or a service is found.
-        for i in range(1,(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1) - datetime.now()).seconds // 3600):
-            itterativeSearchTime = (datetime.now()+timedelta(hours=i)).strftime("%Y/%m/%d/%H%M")
-            rttStationData = getStationData(stationCode, itterativeSearchTime)
-            print(i)
-        print(f"\nThere are no services calling at {stationName} ({stationCode}) for a while... Check back later!\n")
-        dotMatrixWindow(f"\nThere are no services calling at {stationName} ({stationCode}) for a while..."," Check back later!")
-        quit()
-
-serviceCountStart = j-1; serviceCountStop = j+6
-serviceTypeConversion=bidict({'train':'rail',"bus":"rail replacement bus","ship":"ferry"})
-
-for i in range(serviceCountStart,serviceCountStop):
-    try:
-        serviceUidList.append(rttStationData['services'][i]['serviceUid'])
-        serviceDateList.append(rttStationData['services'][i]['runDate'])
-        serviceTypeList.append(serviceTypeConversion[rttStationData['services'][i]['serviceType']])
-        destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
-        railOperatorList.append(rttStationData['services'][i]['atocName'])
-        if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
-            railOperatorList[-1] = 'Caledonian MacBrayne'
-        if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport' or railOperatorList[-1] == 'CrossCountry' and stationName == 'Leeds Bradford Airport':
-            railOperatorList[-1] = 'FLYER A1' 
-        arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
+    global serviceUidList,serviceDateList,serviceTypeList,railOperatorList,destinationNameList,arrivalTimeList,platformNoList,scheduledDepartureList,realTimeDepartureList,serviceTypeConversion
+    #Using the retrieved data, the first service's basic info is established. (UID, Run Date & Destination, etc.)
+    serviceUidList=[]; serviceDateList=[]; serviceTypeList=[]; railOperatorList=[]; destinationNameList=[]; arrivalTimeList=[]; platformNoList=[]; scheduledDepartureList=[]; realTimeDepartureList=[]
+    tempDepartureTime = (int(searchTime[-4:-2]) * 3599 + int(searchTime[-2:]) * 60)
+    j=0
+    while tempDepartureTime < (int(searchTime[-4:-2]) * 3600 + int(searchTime[-2:]) * 60):
         try:
-            platformNoList.append(rttStationData['services'][i]['locationDetail']['platform'])
+            tempDepartureTime = (rttStationData['services'][j]['locationDetail']['gbttBookedDeparture'])
+            tempDepartureTime = int(tempDepartureTime[:2]) * 3600 + int(tempDepartureTime[2:]) * 60
+            j+=1
         except:
-            platformNoList.append(False)
-        scheduledDepartureList.append(rttStationData['services'][i]['locationDetail']['gbttBookedDeparture'])
+            #Printing and Displaying an error message if no services are found.
+            #To Do - implement a feature to keep searching an hour later until a service is found or the day ends.
+                #Keep searching for services i hours ahead until midnight is hit or a service is found.
+            for i in range(1,(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1) - datetime.now()).seconds // 3600):
+                itterativeSearchTime = (datetime.now()+timedelta(hours=i)).strftime("%Y/%m/%d/%H%M")
+                rttStationData = getStationData(stationCode, itterativeSearchTime)
+                print(i)
+            print(f"\nThere are no services calling at {stationName} ({stationCode}) for a while... Check back later!\n")
+            dotMatrixWindow(f"\nThere are no services calling at {stationName} ({stationCode}) for a while..."," Check back later!")
+            quit()
+
+    serviceCountStart = j-1; serviceCountStop = j+6
+    serviceTypeConversion=bidict({'train':'rail',"bus":"rail replacement bus","ship":"ferry"})
+
+    for i in range(serviceCountStart,serviceCountStop):
         try:
-            realTimeDepartureList.append(rttStationData['services'][i]['locationDetail']['realtimeDeparture'])
+            serviceUidList.append(rttStationData['services'][i]['serviceUid'])
+            serviceDateList.append(rttStationData['services'][i]['runDate'])
+            serviceTypeList.append(serviceTypeConversion[rttStationData['services'][i]['serviceType']])
+            destinationNameList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['description'])
+            railOperatorList.append(rttStationData['services'][i]['atocName'])
+            if railOperatorList[-1] == 'ScotRail' and serviceTypeList[-1] == 'ship':
+                railOperatorList[-1] = 'Caledonian MacBrayne'
+            if railOperatorList[-1] == 'CrossCountry' and destinationNameList[-1] == 'Leeds Bradford Airport' or railOperatorList[-1] == 'CrossCountry' and stationName == 'Leeds Bradford Airport':
+                railOperatorList[-1] = 'FLYER A1' 
+            arrivalTimeList.append(rttStationData['services'][i]['locationDetail']['destination'][0]['publicTime'])
+            try:
+                platformNoList.append(rttStationData['services'][i]['locationDetail']['platform'])
+            except:
+                platformNoList.append(False)
+            scheduledDepartureList.append(rttStationData['services'][i]['locationDetail']['gbttBookedDeparture'])
+            try:
+                realTimeDepartureList.append(rttStationData['services'][i]['locationDetail']['realtimeDeparture'])
+            except:
+                realTimeDepartureList.append(False)
         except:
-            realTimeDepartureList.append(False)
-    except:
-        break
-#print(serviceUidList, serviceDateList, serviceTypeList, destinationNameList, railOperatorList, arrivalTimeList, platformNoList, scheduledDepartureList, realTimeDepartureList)
+            break
+    #print(serviceUidList, serviceDateList, serviceTypeList, destinationNameList, railOperatorList, arrivalTimeList, platformNoList, scheduledDepartureList, realTimeDepartureList)
+
+searchStationServices(stationCode,datetime.now().strftime("%Y/%m/%d/%H%M"))
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -238,10 +242,13 @@ def box_clicked(i):
     serviceIterationNumber = i
     infoWindow.destroy()
 
+def nextPageSearch():
+    searchStationServices(stationCode, datetime.now().strftime(f"%Y/%m/%d/{realTimeDepartureList[-1]}"))
+
 for i in range(len(serviceUidList)):
     scheduledDeparture = scheduledDepartureList[i]
     realTimeDeparture = realTimeDepartureList[i]
-    
+
     # Convert the string variables to minutes since midnight
     try:
         scheduledMinutes = int(scheduledDeparture[:2]) * 60 + int(scheduledDeparture[2:])
@@ -273,6 +280,10 @@ for i in range(len(serviceUidList)):
     # Create a button for each service
     box = tk.Button(info_frame, text="Select", command=lambda i=i: box_clicked(i), bg='black', fg='black')
     box.pack(side=tk.RIGHT)
+
+    if i == 0:
+        last_service_button = tk.Button(infoWindow, text="Search Last Service", command=nextPageSearch, bg='black', fg='black')
+        last_service_button.pack(side=tk.BOTTOM)
 
 infoWindow.mainloop()
 
