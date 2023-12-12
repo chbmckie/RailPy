@@ -247,7 +247,6 @@ def nextPageSearch(firstTime=False):
         else:
             searchStationServices(stationCode, datetime.now().strftime(f"%Y/%m/%d/{realTimeDepartureList[-1]}"))
 
-
     # Create a new Tkinter window
     infoWindow = tk.Tk()
     infoWindow.title("Service Information")
@@ -274,6 +273,11 @@ def nextPageSearch(firstTime=False):
 
         label1 = tk.Label(frame, text=f"{scheduledDeparture[:2]}:{scheduledDeparture[2:]} to {destinationNameList[i]}", font='DotMatrix 22 bold', fg='orange', bg='black', anchor='w')
         label1.pack(fill=tk.X)
+
+        # Add the new line to display platformNoList[i] unless it equals False
+        if platformNoList[i] is not False:
+            platform_label = tk.Label(frame, text=f"Platform {platformNoList[i]}", font='DotMatrix 18', fg='orange', bg='black', anchor='w')
+            platform_label.pack(fill=tk.X)
 
         info_frame = tk.Frame(frame, bg='black')
         info_frame.pack(fill=tk.X)
