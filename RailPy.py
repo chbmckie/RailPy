@@ -5,6 +5,11 @@ import os
 import tkinter as tk
 from tkinter import font, ttk
 from datetime import datetime, timedelta
+import platform
+
+if platform.system() == 'Windows':
+    import pyglet
+    pyglet.font.add_file('assets/dotMatrix.ttf')
 
 #Importing custom Pip modules
 import requests
