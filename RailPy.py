@@ -5,7 +5,6 @@ import os
 import tkinter as tk
 from tkinter import font, ttk
 from datetime import datetime, timedelta
-import platform
 
 #Importing custom Pip modules
 import requests
