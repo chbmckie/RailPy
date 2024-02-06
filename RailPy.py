@@ -18,15 +18,25 @@ def getStationInput():
         searchText = searchEntry.get().lower()
         listBox.delete(0, tk.END)
         for item in items:
-            combinedString = f"{item[1].lower()} ({item[0].lower()})"
+            combinedString = f"{item[1].lower()} [{item[0].lower()}]"
             if searchText in combinedString:
-                listBox.insert(tk.END, f"{item[0]} ({item[1]})")
+                listBox.insert(tk.END, f"{item[0]} [{item[1]}]")
+
+    def setHomeStation():
+        selectedItem = listBox.get(listBox.curselection())
+        with open("assets/homeStation.txt", "w") as home_file:
+            home_file.write(selectedItem)
 
     def setStationInput(event=None):
         selectedItem = listBox.get(listBox.curselection())
         global stationInput 
         stationInput = selectedItem[:-6]
+        if homeSetTrue:
+            setHomeStation()
         root.destroy()
+
+    def homeSetTrue():
+        setHomeStation = True
 
     # Create the main application window
     root = tk.Tk()
@@ -54,6 +64,17 @@ def getStationInput():
     except FileNotFoundError:
         print(f"The station CRS Code CSV file cannot be found at the default path ({csvFile}).\nPlease try reinstalling the application, or checking the file path.")
 
+    # Check if there is a value in the homeStation.txt file
+    homeStationFile = "assets/homeStation.txt"
+    try:
+        with open(homeStationFile, "r") as home_file:
+            homeStation = home_file.read().strip()
+            if homeStation:
+                # Move the home station to the top of the list
+                items.insert(0, (f"{homeStation} (Home)", ""))
+    except FileNotFoundError:
+        pass  # No need to handle the error if the file doesn't exist
+
     # Create a listbox and a scrollbar
     listBox = tk.Listbox(root, selectmode=tk.SINGLE, height=10, font=('SFPro-Light', 16))
     scrollbar = ttk.Scrollbar(root, orient="vertical", command=listBox.yview)
@@ -61,7 +82,7 @@ def getStationInput():
 
     # Populate the listbox with items
     for item in items:
-        listBox.insert(tk.END, f"{item[0]} ({item[1]})")
+        listBox.insert(tk.END, f"{item[0]} [{item[1]}]")
 
     # Center the listbox in the window
     listBox.pack(side="top", fill="both", expand=True)
@@ -73,9 +94,17 @@ def getStationInput():
     # Create a variable to store the selected station
     stationInput = ""
 
+    # Create a frame to hold the "Set as Home" checkbox
+    frame = tk.Frame(root)
+    frame.pack()
+
+    # Create a "Set as Home" checkbox
+    setHomeCheckbox = tk.Checkbutton(frame, text="Set as Home", font=('SFPro-Heavy', 12), command=homeSetTrue)
+    setHomeCheckbox.pack(side="left")
+
     # Create a "Confirm Selection" button
-    confirmButton = tk.Button(root, text="Confirm Selection", font=('SFPro-Heavy', 14), command=setStationInput)
-    confirmButton.pack()
+    confirmButton = tk.Button(frame, text="Confirm Selection", font=('SFPro-Heavy', 14), command=setStationInput)
+    confirmButton.pack(side="left")
     listBox.bind("<Double-1>", setStationInput)
 
     # Start the Tkinter main loop
