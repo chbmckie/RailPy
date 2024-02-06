@@ -14,6 +14,10 @@ serviceIterationNumber=0
 
 #--------------------------------------------------------------------------------------------------------------------------------
 def getStationInput():
+
+    global homeSetTrue
+    homeSetTrue = False
+
     def updateListbox(event):
         searchText = searchEntry.get().lower()
         listBox.delete(0, tk.END)
@@ -31,12 +35,13 @@ def getStationInput():
         selectedItem = listBox.get(listBox.curselection())
         global stationInput 
         stationInput = selectedItem[:-6]
-        if homeSetTrue:
+        if homeSetTrue == True:
             setHomeStation()
         root.destroy()
 
     def homeSetTrue():
-        setHomeStation = True
+        global homeSetTrue
+        homeSetTrue = True
 
     # Create the main application window
     root = tk.Tk()
